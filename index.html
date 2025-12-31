@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>scripts Image Gallery</title>
+    <title>GitHub Image Gallery</title>
     <style>
         body {
             background: #111;
@@ -48,13 +48,13 @@
 </head>
 <body>
 
-<h2> scripts Photo Gallery</h2>
+<h2>Photo Gallery</h2>
 <div class="gallery" id="gallery"></div>
 
 <script>
 const owner = "Nish12345678910111";
 const repo = "Nish12345678910111.io-files";
-const path = ""; // put folder name if images are inside one
+const path = "";
 const branch = "main";
 
 fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`)
@@ -71,11 +71,23 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${bran
                 const img = document.createElement("img");
                 img.src = file.download_url;
 
-                const btn = document.createElement("a");
-                btn.textContent = "Download";
+                const btn = document.createElement("button");
                 btn.className = "download-btn";
-                btn.href = file.download_url;
-                btn.download = file.name;
+                btn.textContent = "Download";
+
+                btn.onclick = async () => {
+                    const response = await fetch(file.download_url);
+                    const blob = await response.blob();
+
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = file.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                };
 
                 card.appendChild(img);
                 card.appendChild(btn);
@@ -84,8 +96,8 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${bran
         });
     })
     .catch(err => {
-        document.body.innerHTML += "<p style='color:red'>Failed to load images</p>";
         console.error(err);
+        document.body.innerHTML += "<p style='color:red'>Failed to load images</p>";
     });
 </script>
 
