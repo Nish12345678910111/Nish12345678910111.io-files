@@ -3,12 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>GitHub Image Gallery</title>
+
+    <!-- JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <style>
         body {
             background: #111;
             color: #eee;
             font-family: Arial, sans-serif;
             padding: 20px;
+        }
+
+        .top-bar {
+            margin-bottom: 20px;
+        }
+
+        .download-all {
+            padding: 10px 18px;
+            background: #16a34a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .download-all:hover {
+            background: #15803d;
         }
 
         .gallery {
@@ -49,6 +71,11 @@
 <body>
 
 <h2>Photo Gallery</h2>
+
+<div class="top-bar">
+    <button class="download-all" onclick="downloadAll()">Download All (ZIP)</button>
+</div>
+
 <div class="gallery" id="gallery"></div>
 
 <script>
@@ -57,6 +84,8 @@ const repo = "Nish12345678910111.io-files";
 const path = "";
 const branch = "main";
 
+let imageFiles = [];
+
 fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`)
     .then(res => res.json())
     .then(files => {
@@ -64,6 +93,8 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${bran
 
         files.forEach(file => {
             if (file.type === "file" && /\.(png|jpg|jpeg|gif)$/i.test(file.name)) {
+
+                imageFiles.push(file);
 
                 const card = document.createElement("div");
                 card.className = "card";
@@ -76,10 +107,10 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${bran
                 btn.textContent = "Download";
 
                 btn.onclick = async () => {
-                    const response = await fetch(file.download_url);
-                    const blob = await response.blob();
-
+                    const res = await fetch(file.download_url);
+                    const blob = await res.blob();
                     const url = URL.createObjectURL(blob);
+
                     const a = document.createElement("a");
                     a.href = url;
                     a.download = file.name;
@@ -94,11 +125,28 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${bran
                 gallery.appendChild(card);
             }
         });
-    })
-    .catch(err => {
-        console.error(err);
-        document.body.innerHTML += "<p style='color:red'>Failed to load images</p>";
     });
+
+async function downloadAll() {
+    const zip = new JSZip();
+
+    for (const file of imageFiles) {
+        const res = await fetch(file.download_url);
+        const blob = await res.blob();
+        zip.file(file.name, blob);
+    }
+
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "images.zip";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
 </script>
 
 </body>
