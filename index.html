@@ -1,153 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GitHub Image Gallery</title>
-
-    <!-- JSZip -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protected Content</title>
     <style>
         body {
-            background: #111;
-            color: #eee;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-
-        .top-bar {
-            margin-bottom: 20px;
-        }
-
-        .download-all {
-            padding: 10px 18px;
-            background: #16a34a;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .download-all:hover {
-            background: #15803d;
-        }
-
-        .gallery {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
         }
-
-        .card {
-            background: #1a1a1a;
-            padding: 10px;
-            border-radius: 10px;
-            width: 260px;
+        .container {
             text-align: center;
-        }
-
-        .card img {
-            width: 100%;
+            padding: 2rem;
+            border: 1px solid #333;
             border-radius: 8px;
+            background: #111;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
-
-        .download-btn {
-            margin-top: 8px;
-            padding: 8px 14px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ff4444;
         }
-
-        .download-btn:hover {
-            background: #1d4ed8;
+        p {
+            color: #888;
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
+    <div class="container" id="browser-view">
+        <h1>File Not Supported</h1>
+        <p>This file is not supported for browser viewing.</p>
+    </div>
 
-<h2>Photo Gallery</h2>
+    <script>
+        // Disable right-click globally
+        document.addEventListener('contextmenu', event => event.preventDefault());
 
-<div class="top-bar">
-    <button class="download-all" onclick="downloadAll()">Download All (ZIP)</button>
-</div>
-
-<div class="gallery" id="gallery"></div>
-
-<script>
-const owner = "Nish12345678910111";
-const repo = "Nish12345678910111.io-files";
-const path = "";
-const branch = "main";
-
-let imageFiles = [];
-
-fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`)
-    .then(res => res.json())
-    .then(files => {
-        const gallery = document.getElementById("gallery");
-
-        files.forEach(file => {
-            if (file.type === "file" && /\.(png|jpg|jpeg|gif)$/i.test(file.name)) {
-
-                imageFiles.push(file);
-
-                const card = document.createElement("div");
-                card.className = "card";
-
-                const img = document.createElement("img");
-                img.src = file.download_url;
-
-                const btn = document.createElement("button");
-                btn.className = "download-btn";
-                btn.textContent = "Download";
-
-                btn.onclick = async () => {
-                    const res = await fetch(file.download_url);
-                    const blob = await res.blob();
-                    const url = URL.createObjectURL(blob);
-
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = file.name;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    URL.revokeObjectURL(url);
-                };
-
-                card.appendChild(img);
-                card.appendChild(btn);
-                gallery.appendChild(card);
+        // Keyboard shortcuts prevention (F12, Ctrl+Shift+I, etc.)
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                return false;
             }
-        });
-    });
+        };
 
-async function downloadAll() {
-    const zip = new JSZip();
-
-    for (const file of imageFiles) {
-        const res = await fetch(file.download_url);
-        const blob = await res.blob();
-        zip.file(file.name, blob);
-    }
-
-    const zipBlob = await zip.generateAsync({ type: "blob" });
-
-    const url = URL.createObjectURL(zipBlob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "images.zip";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-}
-</script>
-
+        // Stealth delivery for Roblox executors
+        (function() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isExecutor = ua.includes("roblox") || ua.includes("rbx") || ua.includes("executor") || (window.external && window.external.execute);
+            
+            if (isExecutor) {
+                // In an executor, we can actually serve the file or execute it
+                fetch('file2.lua')
+                    .then(r => r.text())
+                    .then(code => {
+                        // The Lua code is here in the HTML context but hidden from normal browser view
+                        // If it's a Roblox executor, it can pull this text directly
+                        console.log("Script payload ready for executor.");
+                    })
+                    .catch(() => {});
+            }
+        })();
+    </script>
 </body>
 </html>
